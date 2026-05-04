@@ -36,6 +36,12 @@ function App() {
   const isPullingRef = useRef(false);
   const lastActivityTime = useRef(Date.now());
   const pullIntervalRef = useRef(null);
+  const [isIdle, setIsIdle] = useState(false);
+  const isIdleRef = useRef(false);
+
+  useEffect(() => {
+      isIdleRef.current = isIdle;
+  }, [isIdle]);
 
   useAudioAlarm(); 
   useTitleNotification();
@@ -75,6 +81,7 @@ function App() {
       setRoomPassword('');
       dispatch(setSharedMode(false));
       dispatch(loadInitialState());
+      setIsIdle(false);
       showToast('プライベートモードに戻りました');
   };
 
@@ -144,7 +151,9 @@ function App() {
   // ユーザーアクティビティの監視（10分放置判定用）
   useEffect(() => {
       const handleActivity = () => {
-          lastActivityTime.current = Date.now();
+          if (!isIdleRef.current) {
+              lastActivityTime.current = Date.now();
+          }
       };
       window.addEventListener('mousemove', handleActivity);
       window.addEventListener('keydown', handleActivity);
@@ -168,10 +177,10 @@ function App() {
 
       // 1. ブラウザ復帰時のイベントリスナー
       const handleVisibility = () => {
-          if (document.visibilityState === 'visible') doPull();
+          if (document.visibilityState === 'visible' && !isIdleRef.current) doPull();
       };
-      const handleFocus = () => doPull();
-      const handleOnline = () => doPull();
+      const handleFocus = () => { if (!isIdleRef.current) doPull(); };
+      const handleOnline = () => { if (!isIdleRef.current) doPull(); };
 
       document.addEventListener('visibilitychange', handleVisibility);
       window.addEventListener('focus', handleFocus);
@@ -181,6 +190,7 @@ function App() {
       pullIntervalRef.current = setInterval(() => {
           const IDLE_LIMIT = 10 * 60 * 1000; // 10分
           if (Date.now() - lastActivityTime.current > IDLE_LIMIT) {
+              setIsIdle(true);
               return; // 放置中はポーリングをスキップ
           }
           doPull();
@@ -250,6 +260,11 @@ function App() {
             <button className="header-btn" style={roomId ? {color: '#4ade80'} : {}} onClick={handleSyncOrShare} title={roomId ? '手動同期 (Pull)' : 'ルームを作成して共有'}>
               <i className="fas fa-sync-alt"></i>
             </button>
+            {roomId && (
+              <button className="header-btn" style={{color: '#94a3b8'}} onClick={() => setIsIdle(true)} title="手動サスペンド">
+                <i className="fas fa-moon"></i>
+              </button>
+            )}
         </div>
         
         <div className="title" onClick={() => setActiveModal('defaultChannel')}>
@@ -332,6 +347,36 @@ function App() {
       )}
 
       <div className={`toast ${toastMessage ? 'show' : ''}`}>{toastMessage}</div>
+
+      {isIdle && roomId && (
+          <div 
+              onClick={() => {
+                  setIsIdle(false);
+                  lastActivityTime.current = Date.now();
+                  handleFetchRoom(roomId, roomPassword);
+              }}
+              style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  backgroundColor: 'rgba(50, 50, 50, 0.85)',
+                  zIndex: 9999,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  color: 'white',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  backdropFilter: 'blur(3px)'
+              }}
+          >
+              <i className="fas fa-moon" style={{ fontSize: '4rem', marginBottom: '20px', color: '#cbd5e1' }}></i>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '10px' }}>サスペンドモード</div>
+              <div style={{ fontSize: '1rem', color: '#94a3b8' }}>画面をクリックして更新・再開</div>
+          </div>
+      )}
 
       {activeModal === 'timePicker' && (
           <TimePickerModal 
