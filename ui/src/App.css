@@ -60,7 +60,8 @@ body {
 .container {
   width: 100%;
   max-width: 1200px;
-  margin-top: 60px; /* ヘッダーの高さを考慮 */
+  margin-top: 60px;
+  /* ヘッダーの高さを考慮 */
 }
 
 .screen {
@@ -83,6 +84,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -184,22 +186,27 @@ body {
   background-color: #e3e3e3;
   color: #333;
 }
+
 .turia .area-title {
   color: #c60041;
   background-color: #ffd1d1;
 }
+
 .angelos .area-title {
   color: #882500;
   background-color: #ffe4cc;
 }
+
 .fontunas .area-title {
   color: #40007c;
   background-color: #f0e5ff;
 }
+
 .monbera .area-title {
   color: #7c0040;
   background-color: #cacaca;
 }
+
 .abaddon .area-title {
   color: #5d4037;
   background-color: #f5deb3;
@@ -244,6 +251,7 @@ body {
     opacity: 0;
     transform: translateY(5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -297,7 +305,8 @@ body {
 
 /* モーダル系スタイル */
 .modal {
-  display: flex; /* noneからflex制御はReact側で行うが、表示時はflex */
+  display: flex;
+  /* noneからflex制御はReact側で行うが、表示時はflex */
   position: fixed;
   z-index: 5;
   left: 0;
@@ -327,15 +336,18 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
 @keyframes modalContentFadeIn {
   from {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -356,6 +368,7 @@ body {
   padding: 0;
   margin: 0;
 }
+
 #modalList li {
   padding: 10px;
   background-color: #e0e0e0;
@@ -365,9 +378,11 @@ body {
   color: #333;
   transition: background-color 0.3s;
 }
+
 #modalList li:hover {
   background-color: #bbb;
 }
+
 #modalList li.active {
   background-color: #888;
   color: #fff;
@@ -396,18 +411,21 @@ body {
   margin: 0 auto;
   background-color: #fff;
 }
+
 .clock .hour-hand,
 .clock .minute-hand {
   position: absolute;
   background-color: #333;
   transform-origin: 0 0;
 }
+
 .clock .hour-hand {
   width: 35%;
   height: 2px;
   top: 50%;
   left: 50%;
 }
+
 .clock .minute-hand {
   width: 50%;
   height: 1px;
@@ -416,6 +434,7 @@ body {
   left: 50%;
   transform: rotate(90deg);
 }
+
 .clock .center-point {
   position: absolute;
   width: 10px;
@@ -433,6 +452,16 @@ body {
   z-index: 5;
   display: flex;
   gap: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.top-right-align {
+  position: absolute;
+  right: 15px;
+  z-index: 5;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .header-btn {
@@ -443,6 +472,7 @@ body {
   transition: transform 0.2s ease;
   color: #666;
 }
+
 .header-btn:hover {
   transform: scale(1.1);
 }
@@ -478,7 +508,8 @@ body {
   color: #fff;
   background: #777;
   text-shadow: 0px 1px 3px black;
-  border-radius: 5px; /* 元のCSSにはなかったがTileに合わせるため追加 */
+  border-radius: 5px;
+  /* 元のCSSにはなかったがTileに合わせるため追加 */
 }
 
 /* アラーム設定 */
@@ -488,14 +519,17 @@ body {
   border-radius: 8px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: space-around;
 }
+
 .alarm-settings label {
   font-size: 1.1rem;
   display: flex;
   align-items: center;
 }
+
 .alarm-settings input[type="checkbox"] {
   width: 20px;
   height: 20px;
@@ -506,12 +540,15 @@ body {
 .past-log {
   color: gray;
 }
+
 .soon-log {
   color: blue;
 }
+
 .closest-log {
   font-weight: bold;
 }
+
 .disabled-log-btn {
   background-color: gray;
   color: rgba(0, 0, 0);
@@ -534,6 +571,7 @@ body {
   justify-content: center;
   border: none;
 }
+
 .modal-close-btn::before,
 .modal-close-btn::after {
   content: "";
@@ -542,23 +580,29 @@ body {
   height: 2px;
   background-color: #333;
 }
+
 .modal-close-btn::before {
   transform: rotate(45deg);
 }
+
 .modal-close-btn::after {
   transform: rotate(-45deg);
 }
+
 #noteCard {
   padding-top: 15px;
 }
+
 #noteCard hr {
   border: 0.5px dashed #ccc;
 }
+
 /* ★★★★ これが不足していた845px以下のレスポンシブ設定です ★★★★ */
 @media (max-width: 845px) {
   .container {
-    margin-top: 35px;
+    margin-top: 68px;
   }
+
   .area-title {
     font-size: 1rem;
     margin-left: -10px;
@@ -567,19 +611,24 @@ body {
     padding: 3px 0 4px 0;
     box-shadow: inset 0px 2px 2px -2px;
   }
+
   .area-title::after {
     top: 0.7rem;
   }
+
   .log-btn {
     font-size: 1rem;
   }
+
   .log-row {
     margin-bottom: 5px;
   }
+
   .log-label {
     font-size: 1.1rem;
     padding-right: 5px;
   }
+
   .btn {
     margin: 0;
     padding: 10px;
@@ -590,6 +639,7 @@ body {
     min-width: 135px;
     padding: 0 10px 10px 10px;
   }
+
   .area-container {
     gap: 5px;
     padding: 0 10px;
@@ -599,6 +649,7 @@ body {
     margin-top: 0;
     width: 100%;
   }
+
   .alarm-settings label {
     font-size: 1rem;
   }
@@ -608,6 +659,7 @@ body {
     height: 100px;
     margin-bottom: 0;
   }
+
   .time-input {
     margin: 20px 0 10px;
     padding: 5px;
@@ -616,6 +668,7 @@ body {
   .header .title {
     font-size: 0.8rem;
   }
+
   .confirm-btn,
   .back-btn {
     width: 25px;
@@ -624,9 +677,11 @@ body {
     font-size: 0.8em;
     padding: 0;
   }
+
   .header-btn {
     font-size: 1.2rem;
   }
+
   .header {
     padding: 5px;
   }
@@ -645,11 +700,42 @@ body {
     font-size: 1rem;
     padding: 8px;
   }
+
   .note-wrapper {
     gap: 3px;
   }
+
   #noteCard {
     padding-top: 5px;
+  }
+}
+
+@media (max-width: 550px) {
+  .header {
+    min-height: 44px;
+    /* Ensure header doesn't collapse when title is hidden */
+  }
+
+  .header .title {
+    display: none;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .shared-badge {
+    padding: 2px !important;
+    font-size: 0.6rem !important;
+  }
+
+  .top-left-align {
+    left: 5px;
+    gap: 5px;
+  }
+
+  .top-right-align {
+    right: 5px;
   }
 }
 
@@ -663,9 +749,11 @@ body {
   background-color: #fdd44d;
   transition: background-color 0.2s ease-in-out;
 }
+
 .log-row-blink {
   animation: modest-blink 0.9s 3;
 }
+
 @keyframes modest-blink {
   50% {
     background-color: #fdd44d;

@@ -104,6 +104,7 @@ app.put('/api/rooms/:room_id', async (c) => {
   // --- マージ処理 ---
   const mergedState = {
     logs: currentState.logs || [],
+    chats: currentState.chats || [],
     timeDisplays: { ...currentState.timeDisplays },
     channelCounts: { ...currentState.channelCounts },
     disabledChannels: { ...currentState.disabledChannels },
@@ -111,7 +112,8 @@ app.put('/api/rooms/:room_id', async (c) => {
       timeDisplays: { ...(currentState.timestamps?.timeDisplays || {}) },
       channelCounts: { ...(currentState.timestamps?.channelCounts || {}) },
       disabledChannels: { ...(currentState.timestamps?.disabledChannels || {}) },
-      logs: Math.max(currentState.timestamps?.logs || 0, incomingState.timestamps?.logs || 0)
+      logs: Math.max(currentState.timestamps?.logs || 0, incomingState.timestamps?.logs || 0),
+      chats: Math.max(currentState.timestamps?.chats || 0, incomingState.timestamps?.chats || 0)
     }
   }
 
@@ -165,6 +167,15 @@ app.put('/api/rooms/:room_id', async (c) => {
     logSet.add(log)
   }
   mergedState.logs = Array.from(logSet)
+
+  // 5. chatsのマージ
+  const chatMap = new Map(mergedState.chats.map(c => [c.id, c]))
+  for (const chat of (incomingState.chats || [])) {
+    chatMap.set(chat.id, chat)
+  }
+  mergedState.chats = Array.from(chatMap.values())
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(-100)
 
   const mergedStateStr = JSON.stringify(mergedState)
 
