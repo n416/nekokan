@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setHighlightTarget, setHoverTarget } from '../features/nekokanSlice';
 
@@ -6,10 +6,17 @@ export default function NoteCard() {
   const dispatch = useDispatch();
   const { timeDisplays, showSeconds, hideTime } = useSelector(state => state.nekokan);
 
+  // 負荷軽減のため、15秒に1回だけ現在時刻を更新して再描画する
+  const [nowTs, setNowTs] = useState(Date.now());
+  useEffect(() => {
+      const interval = setInterval(() => setNowTs(Date.now()), 15000);
+      return () => clearInterval(interval);
+  }, []);
+
   // ログエントリの生成とソート
   const entries = useMemo(() => {
     const arr = [];
-    const now = new Date();
+    const now = new Date(nowTs);
     const fiveMin = 5 * 60 * 1000;
     
     Object.entries(timeDisplays).forEach(([key, timeStr]) => {
@@ -35,7 +42,7 @@ export default function NoteCard() {
     if (future) future.className += ' closest-log';
     
     return arr;
-  }, [timeDisplays]);
+  }, [timeDisplays, nowTs]);
 
   // 表示用フォーマット
   const renderEntries = () => {

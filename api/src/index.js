@@ -161,12 +161,18 @@ app.put('/api/rooms/:room_id', async (c) => {
     }
   }
 
-  // 4. logsのマージ（重複排除のUnion）
-  const logSet = new Set(mergedState.logs)
-  for (const log of (incomingState.logs || [])) {
-    logSet.add(log)
+  // 4. logsのマージ（Last-Writer-Wins）
+  const currentLogsTs = currentState.timestamps?.logs || 0
+  const incomingLogsTs = incomingTs.logs || 0
+  if (incomingLogsTs > currentLogsTs) {
+    mergedState.logs = incomingState.logs || []
+  } else if (incomingLogsTs === currentLogsTs) {
+    const logSet = new Set(mergedState.logs)
+    for (const log of (incomingState.logs || [])) {
+      logSet.add(log)
+    }
+    mergedState.logs = Array.from(logSet)
   }
-  mergedState.logs = Array.from(logSet)
 
   // 5. chatsのマージ
   const chatMap = new Map(mergedState.chats.map(c => [c.id, c]))

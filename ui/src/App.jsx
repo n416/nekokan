@@ -153,14 +153,19 @@ function App() {
         if (isPullingRef.current || !roomId || isJoiningRoom) return;
 
         const data = { logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats };
-        updateRoomState(roomId, JSON.stringify(data), roomPassword).then(res => {
-            if (res.merged_state) {
-                // 他人の変更が混ざって返ってきたらサイレントでUIに反映
-                applyRoomState(res.merged_state, roomPassword, true);
-            }
-        }).catch(e => {
-            showToast('同期エラー: ' + e.message);
-        });
+        
+        const pushTimer = setTimeout(() => {
+            updateRoomState(roomId, JSON.stringify(data), roomPassword).then(res => {
+                if (res.merged_state) {
+                    // 他人の変更が混ざって返ってきたらサイレントでUIに反映
+                    applyRoomState(res.merged_state, roomPassword, true);
+                }
+            }).catch(e => {
+                showToast('同期エラー: ' + e.message);
+            });
+        }, 800); // デバウンス処理: 連続更新による競合を防ぐ
+
+        return () => clearTimeout(pushTimer);
     }, [logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats, roomId, roomPassword, isJoiningRoom]);
 
     // ユーザーアクティビティの監視（10分放置判定用）
