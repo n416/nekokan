@@ -171,6 +171,10 @@ app.put('/api/rooms/:room_id', async (c) => {
   // 5. chatsのマージ
   const chatMap = new Map(mergedState.chats.map(c => [c.id, c]))
   for (const chat of (incomingState.chats || [])) {
+    const existing = chatMap.get(chat.id)
+    if (existing && existing.deleted) {
+      chat.deleted = true
+    }
     chatMap.set(chat.id, chat)
   }
   mergedState.chats = Array.from(chatMap.values())

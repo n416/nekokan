@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addChat } from '../features/nekokanSlice';
+import { addChat, deleteChat } from '../features/nekokanSlice';
 
 export default function SuspendChat({ roomId, onClose }) {
     const dispatch = useDispatch();
     const chats = useSelector(state => state.nekokan.chats || []);
+    const visibleChats = chats.filter(c => !c.deleted);
     
     const [name, setName] = useState(localStorage.getItem('nekokan2_chat_name') || '');
     const [message, setMessage] = useState('');
@@ -24,7 +25,13 @@ export default function SuspendChat({ roomId, onClose }) {
         if (chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
-    }, [chats]);
+    }, [visibleChats]);
+
+    const handleDelete = (id) => {
+        if (window.confirm('このメッセージを削除しますか？')) {
+            dispatch(deleteChat(id));
+        }
+    };
 
     const handleSend = (e) => {
         e.preventDefault();
@@ -94,10 +101,10 @@ export default function SuspendChat({ roomId, onClose }) {
                     gap: '10px'
                 }}
             >
-                {chats.length === 0 ? (
+                {visibleChats.length === 0 ? (
                     <div style={{ textAlign: 'center', color: '#64748b', marginTop: '20px' }}>メッセージはありません</div>
                 ) : (
-                    chats.map(chat => (
+                    visibleChats.map(chat => (
                         <div key={chat.id} style={{
                             backgroundColor: '#334155',
                             padding: '8px 12px',
@@ -105,8 +112,20 @@ export default function SuspendChat({ roomId, onClose }) {
                             alignSelf: 'flex-start',
                             maxWidth: '90%'
                         }}>
-                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>
-                                {chat.name} <span style={{fontSize:'0.7rem', marginLeft:'5px'}}>{new Date(chat.timestamp).toLocaleTimeString('ja-JP', {hour12:false})}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px', gap: '10px' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                                    {chat.name} <span style={{fontSize:'0.7rem', marginLeft:'5px'}}>{new Date(chat.timestamp).toLocaleTimeString('ja-JP', {hour12:false})}</span>
+                                </div>
+                                <button
+                                    onClick={() => handleDelete(chat.id)}
+                                    style={{
+                                        background: 'transparent', border: 'none', color: '#64748b',
+                                        cursor: 'pointer', fontSize: '0.8rem', padding: '0'
+                                    }}
+                                    title="削除"
+                                >
+                                    <i className="fas fa-trash"></i>
+                                </button>
                             </div>
                             <div style={{ color: '#f1f5f9', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                                 {chat.message}

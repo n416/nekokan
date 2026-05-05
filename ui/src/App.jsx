@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import LZString from 'lz-string';
 import {
     loadInitialState, pushHistory, undo, redo, clearAllLogs, resetAll,
-    toggleShowSeconds, toggleHideTime, setSharedMode, loadFromUrl, loadFromJson, updateAlarmSettings
+    toggleShowSeconds, toggleHideTime, setSharedMode, loadFromUrl, loadFromJson, updateAlarmSettings,
+    updateLastReadChat
 } from './features/nekokanSlice';
 import AreaTile from './components/AreaTile';
 import NoteCard from './components/NoteCard';
@@ -22,7 +23,7 @@ import './App.css';
 
 function App() {
     const dispatch = useDispatch();
-    const { areas, logs, alarmSettings, showSeconds, hideTime, timeDisplays, channelCounts, disabledChannels, timestamps, chats } = useSelector(state => state.nekokan);
+    const { areas, logs, alarmSettings, showSeconds, hideTime, timeDisplays, channelCounts, disabledChannels, timestamps, chats, lastReadChatTimestamp } = useSelector(state => state.nekokan);
     const [toastMessage, setToastMessage] = useState('');
 
     const [activeModal, setActiveModal] = useState(null);
@@ -44,6 +45,18 @@ function App() {
     useEffect(() => {
         isIdleRef.current = isIdle;
     }, [isIdle]);
+
+    const visibleChats = React.useMemo(() => chats ? chats.filter(c => !c.deleted) : [], [chats]);
+    const hasUnreadChat = visibleChats.length > 0 && visibleChats[visibleChats.length - 1].timestamp > lastReadChatTimestamp;
+
+    useEffect(() => {
+        if (isChatOpen && visibleChats.length > 0) {
+            const latest = visibleChats[visibleChats.length - 1].timestamp;
+            if (latest > lastReadChatTimestamp) {
+                dispatch(updateLastReadChat(latest));
+            }
+        }
+    }, [isChatOpen, visibleChats, lastReadChatTimestamp, dispatch]);
 
     useAudioAlarm();
     useTitleNotification();
@@ -262,8 +275,20 @@ function App() {
                         <i className="fas fa-sync-alt"></i>
                     </button>
                     {roomId && (
-                        <button className="header-btn" style={{ color: '#94a3b8' }} onClick={() => setIsIdle(true)} title="手動サスペンド">
+                        <button className="header-btn" style={{ color: '#94a3b8', position: 'relative' }} onClick={() => setIsIdle(true)} title="手動サスペンド">
                             <i className="fas fa-moon"></i>
+                            {hasUnreadChat && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '4px',
+                                    right: '4px',
+                                    width: '8px',
+                                    height: '8px',
+                                    backgroundColor: '#ef4444',
+                                    borderRadius: '50%',
+                                    boxShadow: '0 0 4px rgba(0,0,0,0.5)'
+                                }}></span>
+                            )}
                         </button>
                     )}
                 </div>
@@ -387,10 +412,23 @@ function App() {
                                     marginTop: '30px', padding: '10px 25px', fontSize: '1.1rem',
                                     backgroundColor: '#3b82f6', color: 'white', border: 'none',
                                     borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
-                                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                                    position: 'relative'
                                 }}
                             >
                                 <i className="fas fa-comments" style={{ marginRight: '8px' }}></i>チャットを開く
+                                {hasUnreadChat && (
+                                    <span style={{
+                                        position: 'absolute',
+                                        top: '-4px',
+                                        right: '-4px',
+                                        width: '14px',
+                                        height: '14px',
+                                        backgroundColor: '#ef4444',
+                                        borderRadius: '50%',
+                                        border: '2px solid rgba(50,50,50,0.85)'
+                                    }}></span>
+                                )}
                             </button>
                         </>
                     )}
