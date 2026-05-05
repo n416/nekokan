@@ -175,8 +175,22 @@ app.put('/api/rooms/:room_id', async (c) => {
   }
 
   // 5. chatsのマージ
-  const chatMap = new Map(mergedState.chats.map(c => [c.id, c]))
-  for (const chat of (incomingState.chats || [])) {
+  const migrateChat = (c) => {
+    if (!c.id) {
+      c.id = `legacy_${c.timestamp || 0}_${c.name || 'unknown'}`
+    }
+    if (!c.timestamp) {
+      c.timestamp = 0
+    }
+    return c
+  }
+
+  const chatMap = new Map(mergedState.chats.map(c => {
+    const migrated = migrateChat(c)
+    return [migrated.id, migrated]
+  }))
+  for (let chat of (incomingState.chats || [])) {
+    chat = migrateChat(chat)
     const existing = chatMap.get(chat.id)
     if (existing && existing.deleted) {
       chat.deleted = true

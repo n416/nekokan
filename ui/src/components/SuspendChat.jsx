@@ -46,6 +46,7 @@ export default function SuspendChat({ roomId, onClose }) {
 
         const newChat = {
             id: crypto.randomUUID(),
+            userId: userId,
             name: finalName,
             message: message.trim(),
             timestamp: Date.now()
@@ -104,34 +105,42 @@ export default function SuspendChat({ roomId, onClose }) {
                 {visibleChats.length === 0 ? (
                     <div style={{ textAlign: 'center', color: '#64748b', marginTop: '20px' }}>メッセージはありません</div>
                 ) : (
-                    visibleChats.map(chat => (
+                    visibleChats.map(chat => {
+                        const hashSuffix = userId.slice(-2).toUpperCase();
+                        const isMine = chat.userId ? chat.userId === userId : chat.name.endsWith('#' + hashSuffix);
+                        const isOlderThanOneDay = Date.now() - chat.timestamp > 24 * 60 * 60 * 1000;
+                        const canDelete = isMine || isOlderThanOneDay;
+                        
+                        return (
                         <div key={chat.id} style={{
-                            backgroundColor: '#334155',
+                            backgroundColor: isMine ? '#1e40af' : '#334155',
                             padding: '8px 12px',
                             borderRadius: '6px',
-                            alignSelf: 'flex-start',
+                            alignSelf: isMine ? 'flex-end' : 'flex-start',
                             maxWidth: '90%'
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px', gap: '10px' }}>
-                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
                                     {chat.name} <span style={{fontSize:'0.7rem', marginLeft:'5px'}}>{new Date(chat.timestamp).toLocaleTimeString('ja-JP', {hour12:false})}</span>
                                 </div>
-                                <button
-                                    onClick={() => handleDelete(chat.id)}
-                                    style={{
-                                        background: 'transparent', border: 'none', color: '#64748b',
-                                        cursor: 'pointer', fontSize: '0.8rem', padding: '0'
-                                    }}
-                                    title="削除"
-                                >
-                                    <i className="fas fa-trash"></i>
-                                </button>
+                                {canDelete && (
+                                    <button
+                                        onClick={() => handleDelete(chat.id)}
+                                        style={{
+                                            background: 'transparent', border: 'none', color: '#94a3b8',
+                                            cursor: 'pointer', fontSize: '0.8rem', padding: '0'
+                                        }}
+                                        title="削除"
+                                    >
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                )}
                             </div>
                             <div style={{ color: '#f1f5f9', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                                 {chat.message}
                             </div>
                         </div>
-                    ))
+                    )})
                 )}
             </div>
 

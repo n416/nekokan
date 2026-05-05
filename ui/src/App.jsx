@@ -144,18 +144,26 @@ function App() {
         }
     };
 
+    const pushTimerRef = useRef(null);
+    const pendingPushDataRef = useRef(null);
+
     // 自動Push (ルームモード時)
     useEffect(() => {
         if (isInitialLoad.current) {
             isInitialLoad.current = false;
             return;
         }
-        if (isPullingRef.current || !roomId || isJoiningRoom) return;
+        if (!roomId || isJoiningRoom) return;
 
-        const data = { logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats };
+        pendingPushDataRef.current = { logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats };
+
+        if (isPullingRef.current) return;
+
+        if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
         
-        const pushTimer = setTimeout(() => {
-            updateRoomState(roomId, JSON.stringify(data), roomPassword).then(res => {
+        pushTimerRef.current = setTimeout(() => {
+            const dataToPush = pendingPushDataRef.current;
+            updateRoomState(roomId, JSON.stringify(dataToPush), roomPassword).then(res => {
                 if (res.merged_state) {
                     // 他人の変更が混ざって返ってきたらサイレントでUIに反映
                     applyRoomState(res.merged_state, roomPassword, true);
@@ -165,7 +173,6 @@ function App() {
             });
         }, 800); // デバウンス処理: 連続更新による競合を防ぐ
 
-        return () => clearTimeout(pushTimer);
     }, [logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats, roomId, roomPassword, isJoiningRoom]);
 
     // ユーザーアクティビティの監視（10分放置判定用）
