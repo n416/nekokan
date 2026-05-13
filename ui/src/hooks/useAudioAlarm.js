@@ -32,9 +32,9 @@ export function useAudioAlarm() {
 
       if (checkPoints.length === 0) return;
 
-      Object.entries(timeDisplays).forEach(([key, timeStr]) => {
+      Object.entries(timeDisplays).forEach(([key, timeMs]) => {
         const [areaName, channelName] = key.split('_');
-        const targetTime = new Date(now.toDateString() + ' ' + timeStr);
+        const targetTime = new Date(timeMs);
         
         // 過去の予定は無視
         if (targetTime <= now) return;

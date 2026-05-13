@@ -19,10 +19,15 @@ export default function NoteCard() {
     const now = new Date(nowTs);
     const fiveMin = 5 * 60 * 1000;
     
-    Object.entries(timeDisplays).forEach(([key, timeStr]) => {
+    Object.entries(timeDisplays).forEach(([key, timeMs]) => {
         const [area, channel] = key.split('_');
-        const logTime = new Date(now.toDateString() + ' ' + timeStr);
+        const logTime = new Date(timeMs);
         const diff = logTime - now;
+        
+        // 2時間(7200000ミリ秒)以上経過したものは除外する
+        if (diff < -2 * 60 * 60 * 1000) {
+            return;
+        }
         
         let className = '';
         if (diff > -fiveMin && diff <= fiveMin) {
@@ -31,12 +36,14 @@ export default function NoteCard() {
             className = 'past-log';
         }
         
+        const timeStr = logTime.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        
         arr.push({
             key, area, channel, timeStr, logTime, className, diff
         });
     });
 
-    arr.sort((a, b) => a.timeStr.localeCompare(b.timeStr));
+    arr.sort((a, b) => a.logTime.getTime() - b.logTime.getTime());
 
     const future = arr.find(e => e.diff > 0);
     if (future) future.className += ' closest-log';

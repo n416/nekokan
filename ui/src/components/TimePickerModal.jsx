@@ -15,24 +15,36 @@ export default function TimePickerModal({ data, onClose, onToast }) {
       setIsDisabled(!!disabledChannels[key]);
       
       if (current) {
-          setInputVal(current.substring(0, 5));
+          const d = new Date(current);
+          const hh = String(d.getHours()).padStart(2,'0');
+          const mm = String(d.getMinutes()).padStart(2,'0');
+          setInputVal(`${hh}:${mm}`);
       } else {
           const now = new Date();
           const hh = String(now.getHours()).padStart(2,'0');
           const mm = String(now.getMinutes()).padStart(2,'0');
           setInputVal(`${hh}:${mm}`);
       }
-  }, [data]);
+  }, [data, timeDisplays, disabledChannels, key]);
 
   const handleOk = () => {
       if (!inputVal) return;
       dispatch(pushHistory());
-      // 秒は00で固定
-      const newTime = inputVal + ':00';
+      
+      const [hh, mm] = inputVal.split(':').map(Number);
+      const now = new Date();
+      let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0);
+      
+      // 12時間以上過去なら翌日とみなす
+      if (target.getTime() < now.getTime() - 12 * 60 * 60 * 1000) {
+          target.setDate(target.getDate() + 1);
+      }
+      
       dispatch(updateTimeDisplayOnly({ 
           areaName: data.areaName, 
           channelName: data.channelName, 
-          futureTimeStr: newTime 
+          futureTimeMs: target.getTime(),
+          futureTimeStr: inputVal + ':00' // 互換性のため
       }));
       // ログにも追加すべきだが、仕様上TimePickerは「修正」に近いので時刻表示のみ更新とするか、
       // 元の仕様に合わせて「ボタン押下」と同じ扱いにするか。

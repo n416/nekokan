@@ -16,9 +16,9 @@ export function useTitleNotification() {
     const checkNotifications = () => {
       const now = new Date();
       
-      Object.entries(timeDisplays).forEach(([key, timeStr]) => {
+      Object.entries(timeDisplays).forEach(([key, timeMs]) => {
         const [areaName, channelName] = key.split('_');
-        const targetTime = new Date(now.toDateString() + ' ' + timeStr);
+        const targetTime = new Date(timeMs);
         const diff = targetTime - now;
         
         // 条件: 予定時刻を過ぎていて、かつ5秒以内 (-5000 < diff < 0)
