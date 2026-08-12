@@ -549,13 +549,6 @@ body {
   font-weight: bold;
 }
 
-.disabled-log-btn {
-  background-color: gray;
-  color: rgba(0, 0, 0);
-  cursor: no-drop;
-  text-shadow: none;
-}
-
 .modal-close-btn {
   position: absolute;
   top: -15px;

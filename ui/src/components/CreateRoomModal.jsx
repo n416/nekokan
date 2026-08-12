@@ -13,8 +13,7 @@ function CreateRoomModal({ onClose, onToast, onRoomCreated }) {
       const data = {
         logs: state.logs,
         timeDisplays: state.timeDisplays,
-        channelCounts: state.channelCounts,
-        disabledChannels: state.disabledChannels
+        channelCounts: state.channelCounts
       };
       const result = await createRoom(JSON.stringify(data), password);
       localStorage.setItem('nekokan2_owner_' + result.room_id, result.owner_token);
