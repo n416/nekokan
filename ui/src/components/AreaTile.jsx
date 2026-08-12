@@ -4,7 +4,7 @@ import { addLog, pushHistory } from '../features/nekokanSlice';
 
 export default function AreaTile({ area, onOpenTimePicker, onOpenSettings, onLogAdded }) {
   const dispatch = useDispatch();
-  const { timeDisplays, channelCounts, defaultChannelCount, disabledChannels, highlightTarget, hoverTarget } = useSelector(state => state.nekokan);
+  const { timeDisplays, channelCounts, defaultChannelCount, highlightTarget, hoverTarget } = useSelector(state => state.nekokan);
   
   // 表示更新用タイマー
   const [nowTs, setNowTs] = React.useState(Date.now());
@@ -47,7 +47,6 @@ export default function AreaTile({ area, onOpenTimePicker, onOpenSettings, onLog
       {channels.map(ch => {
         const key = `${area.name}_${ch}`;
         let timeDisplay = timeDisplays[key];
-        const isDisabled = disabledChannels[key];
 
         if (timeDisplay) {
             const diff = timeDisplay - nowTs;
@@ -81,10 +80,9 @@ export default function AreaTile({ area, onOpenTimePicker, onOpenSettings, onLog
                     )}
                 </div>
                 <div className="log-button-container">
-                    <LogButton 
-                        onClick={() => handleLogClick(ch)} 
-                        hasTime={!!timeDisplay} 
-                        disabled={isDisabled}
+                    <LogButton
+                        onClick={() => handleLogClick(ch)}
+                        hasTime={!!timeDisplay}
                     />
                 </div>
             </div>
@@ -94,13 +92,12 @@ export default function AreaTile({ area, onOpenTimePicker, onOpenSettings, onLog
   );
 }
 
-function LogButton({ onClick, hasTime, disabled }) {
+function LogButton({ onClick, hasTime }) {
     const iconClass = hasTime ? 'fa-skull-crossbones' : 'fa-cat';
 
     return (
-        <button 
-            className={`btn log-btn ${disabled ? 'disabled-log-btn' : ''}`} 
-            disabled={disabled}
+        <button
+            className="btn log-btn"
             onClick={onClick}
         >
             {hasTime && iconClass === 'fa-skull-crossbones' && '!'}

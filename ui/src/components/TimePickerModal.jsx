@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateTimeDisplayOnly, clearTimeDisplay, toggleDisabledChannel, pushHistory } from '../features/nekokanSlice';
+import { updateTimeDisplayOnly, clearTimeDisplay, pushHistory } from '../features/nekokanSlice';
 
 export default function TimePickerModal({ data, onClose, onToast }) {
   const dispatch = useDispatch();
-  const { timeDisplays, disabledChannels } = useSelector(state => state.nekokan);
+  const { timeDisplays } = useSelector(state => state.nekokan);
   const [inputVal, setInputVal] = useState('');
-  const [isDisabled, setIsDisabled] = useState(false);
-  
+
   const key = `${data.areaName}_${data.channelName}`;
 
   useEffect(() => {
       const current = timeDisplays[key];
-      setIsDisabled(!!disabledChannels[key]);
-      
+
       if (current) {
           const d = new Date(current);
           const hh = String(d.getHours()).padStart(2,'0');
@@ -25,7 +23,7 @@ export default function TimePickerModal({ data, onClose, onToast }) {
           const mm = String(now.getMinutes()).padStart(2,'0');
           setInputVal(`${hh}:${mm}`);
       }
-  }, [data, timeDisplays, disabledChannels, key]);
+  }, [data, timeDisplays, key]);
 
   const handleOk = () => {
       if (!inputVal) return;
@@ -60,11 +58,6 @@ export default function TimePickerModal({ data, onClose, onToast }) {
       onToast('時刻をクリアしました');
       onClose();
   };
-  
-  const handleToggleDisable = () => {
-      dispatch(toggleDisabledChannel({ areaName: data.areaName, channelName: data.channelName }));
-      setIsDisabled(!isDisabled);
-  };
 
   // 時計の針計算
   const [hh, mm] = inputVal.split(':').map(Number);
@@ -91,9 +84,6 @@ export default function TimePickerModal({ data, onClose, onToast }) {
         
         <button className="btn" onClick={handleOk}>OK</button>
         <button className="btn clear-btn" onClick={handleClear}>クリア</button>
-        <button className="btn" onClick={handleToggleDisable}>
-            {isDisabled ? 'ボタンを有効にする' : 'ボタンを無効にする'}
-        </button>
       </div>
     </div>
   );

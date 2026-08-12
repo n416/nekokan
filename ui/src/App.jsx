@@ -23,7 +23,7 @@ import './App.css';
 
 function App() {
     const dispatch = useDispatch();
-    const { areas, logs, alarmSettings, showSeconds, hideTime, timeDisplays, channelCounts, disabledChannels, timestamps, chats, lastReadChatTimestamp } = useSelector(state => state.nekokan);
+    const { areas, logs, alarmSettings, showSeconds, hideTime, timeDisplays, channelCounts, timestamps, chats, lastReadChatTimestamp } = useSelector(state => state.nekokan);
     const [toastMessage, setToastMessage] = useState('');
 
     const [activeModal, setActiveModal] = useState(null);
@@ -155,7 +155,7 @@ function App() {
         }
         if (!roomId || isJoiningRoom) return;
 
-        pendingPushDataRef.current = { logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats };
+        pendingPushDataRef.current = { logs, timeDisplays, channelCounts, timestamps, chats };
 
         if (isPullingRef.current) return;
 
@@ -173,7 +173,7 @@ function App() {
             });
         }, 800); // デバウンス処理: 連続更新による競合を防ぐ
 
-    }, [logs, timeDisplays, channelCounts, disabledChannels, timestamps, chats, roomId, roomPassword, isJoiningRoom]);
+    }, [logs, timeDisplays, channelCounts, timestamps, chats, roomId, roomPassword, isJoiningRoom]);
 
     // ユーザーアクティビティの監視（10分放置判定用）
     useEffect(() => {

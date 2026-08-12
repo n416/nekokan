@@ -11,7 +11,6 @@ const localStorageMiddleware = store => next => action => {
     if (!state.isSharedMode) {
       localStorage.setItem('logs', JSON.stringify(state.logs));
       localStorage.setItem('timeDisplays', JSON.stringify(state.timeDisplays));
-      localStorage.setItem('disabledChannels', JSON.stringify(state.disabledChannels));
       localStorage.setItem('channelSettings', JSON.stringify(state.channelCounts));
       localStorage.setItem('timestamps', JSON.stringify(state.timestamps));
     }

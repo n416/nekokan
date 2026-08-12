@@ -107,11 +107,9 @@ app.put('/api/rooms/:room_id', async (c) => {
     chats: currentState.chats || [],
     timeDisplays: { ...currentState.timeDisplays },
     channelCounts: { ...currentState.channelCounts },
-    disabledChannels: { ...currentState.disabledChannels },
     timestamps: {
       timeDisplays: { ...(currentState.timestamps?.timeDisplays || {}) },
       channelCounts: { ...(currentState.timestamps?.channelCounts || {}) },
-      disabledChannels: { ...(currentState.timestamps?.disabledChannels || {}) },
       logs: Math.max(currentState.timestamps?.logs || 0, incomingState.timestamps?.logs || 0),
       chats: Math.max(currentState.timestamps?.chats || 0, incomingState.timestamps?.chats || 0)
     }
@@ -145,23 +143,7 @@ app.put('/api/rooms/:room_id', async (c) => {
     }
   }
 
-  // 3. disabledChannelsのマージ
-  for (const [key, value] of Object.entries(incomingState.disabledChannels || {})) {
-    const curTs = mergedState.timestamps.disabledChannels[key] || 0
-    const inTs = incomingTs.disabledChannels?.[key] || 0
-    if (inTs >= curTs) {
-      mergedState.disabledChannels[key] = value
-      mergedState.timestamps.disabledChannels[key] = inTs
-    }
-  }
-  for (const [key, ts] of Object.entries(incomingTs.disabledChannels || {})) {
-    if (ts > (mergedState.timestamps.disabledChannels[key] || 0) && !incomingState.disabledChannels?.[key]) {
-      delete mergedState.disabledChannels[key]
-      mergedState.timestamps.disabledChannels[key] = ts
-    }
-  }
-
-  // 4. logsのマージ（Last-Writer-Wins）
+  // 3. logsのマージ（Last-Writer-Wins）
   const currentLogsTs = currentState.timestamps?.logs || 0
   const incomingLogsTs = incomingTs.logs || 0
   if (incomingLogsTs > currentLogsTs) {
@@ -174,7 +156,7 @@ app.put('/api/rooms/:room_id', async (c) => {
     mergedState.logs = Array.from(logSet)
   }
 
-  // 5. chatsのマージ
+  // 4. chatsのマージ
   const migrateChat = (c) => {
     if (!c.id) {
       c.id = `legacy_${c.timestamp || 0}_${c.name || 'unknown'}`
